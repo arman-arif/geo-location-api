@@ -11,13 +11,13 @@ A lightweight REST API for querying countries, states, and cities from a bundled
 Start the server:
 
 ```bash
-node server.js
+node api/server.js
 ```
 
 The server starts on port **3000** by default. To use a different port, set the `PORT` environment variable:
 
 ```bash
-PORT=8080 node server.js
+PORT=8080 node api/server.js
 ```
 
 ## Endpoints
@@ -185,7 +185,7 @@ Filters can be combined. All parameters are optional.
 
 ## Data Source
 
-The API reads from `countries+states+cities.json`, a bundled dataset containing:
+The API reads from `api/countries+states+cities.json`, a bundled dataset containing:
 
 - **250** countries
 - **5,308** states/provinces
@@ -195,10 +195,10 @@ Country and state records include geographic coordinates and metadata (capital, 
 
 ## Running Tests
 
-A test suite is included in `test.js`. It starts the server on port `3547`, runs assertions against all endpoints, and exits with code `0` on success or `1` on failure.
+A test suite is included in `api/test.js`. It starts the server on port `3547`, runs assertions against all endpoints, and exits with code `0` on success or `1` on failure.
 
 ```bash
-node test.js
+node api/test.js
 ```
 
 ## Example Usage
