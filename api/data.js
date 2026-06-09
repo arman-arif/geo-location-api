@@ -1,14 +1,16 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const fs = require('fs');
-const path = require('path');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ---------------------------------------------------------------------------
 // Load data once at module startup
 // ---------------------------------------------------------------------------
 
 const RAW = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'countries+states+cities.json'), 'utf8')
+  fs.readFileSync(path.join(__dirname, 'data/countries+states+cities.json'), 'utf8')
 );
 
 // ---------------------------------------------------------------------------
@@ -59,7 +61,7 @@ const COUNTRY_FIELDS = [
 ];
 
 /** Return flat array of country summaries (no nested states/cities). */
-function getAllCountries() {
+export function getAllCountries() {
   return RAW.map(c => {
     const out = {};
     for (const f of COUNTRY_FIELDS) out[f] = c[f];
@@ -68,7 +70,7 @@ function getAllCountries() {
 }
 
 /** Return country with states array (no nested cities in each state). */
-function getCountryByIso2(iso2) {
+export function getCountryByIso2(iso2) {
   const country = countryByIso2.get(iso2);
   if (!country) return null;
 
@@ -88,7 +90,7 @@ function getCountryByIso2(iso2) {
 }
 
 /** Return array of state summaries for a country (no cities). */
-function getStatesByCountryIso2(iso2) {
+export function getStatesByCountryIso2(iso2) {
   const states = statesByCountryIso2.get(iso2);
   if (!states) return null;
 
@@ -102,12 +104,12 @@ function getStatesByCountryIso2(iso2) {
 }
 
 /** Return state with cities array. */
-function getStateById(stateId) {
+export function getStateById(stateId) {
   return stateById.get(stateId) || null;
 }
 
 /** Return cities array for a state. */
-function getCitiesByStateId(stateId) {
+export function getCitiesByStateId(stateId) {
   return citiesByStateId.get(stateId) || null;
 }
 
@@ -116,7 +118,7 @@ function getCitiesByStateId(stateId) {
  * Filters: { country_iso2, state_id, search }
  * search is case-insensitive substring match on city.name.
  */
-function getAllCities({ country_iso2, state_id, search } = {}) {
+export function getAllCities({ country_iso2, state_id, search } = {}) {
   let result = allCities;
 
   if (country_iso2) {
@@ -135,7 +137,7 @@ function getAllCities({ country_iso2, state_id, search } = {}) {
 }
 
 /** Return { countries, states, cities } counts. */
-function getStats() {
+export function getStats() {
   return {
     countries: RAW.length,
     states: stateById.size,
@@ -143,7 +145,7 @@ function getStats() {
   };
 }
 
-module.exports = {
+export default {
   getAllCountries,
   getCountryByIso2,
   getStatesByCountryIso2,

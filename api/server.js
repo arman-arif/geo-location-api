@@ -1,7 +1,5 @@
-'use strict';
-
-const http = require('http');
-const data = require('./data');
+import http from 'node:http';
+import * as data from './data.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -158,4 +156,4 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-module.exports = server;
+export default server;

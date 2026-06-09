@@ -1,7 +1,10 @@
-'use strict';
+import http from 'node:http';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const http = require('http');
-const { spawn } = require('child_process');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = 3547;
 const BASE = `http://localhost:${PORT}`;
@@ -136,6 +139,7 @@ async function run() {
 
 // Start server then run tests
 server = spawn('node', ['server.js'], {
+  cwd: __dirname,
   env: { ...process.env, PORT },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
