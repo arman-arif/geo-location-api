@@ -1,0 +1,11 @@
+name = "api-geo-locations"
+main = "src/index.js"
+compatibility_date = "2026-06-10"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "geo-location-db"
+database_id = "e0ae0ed5-2360-428f-9cab-d0b1b83ed86b"
+
+[observability]
+enabled = true

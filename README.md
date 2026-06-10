@@ -225,3 +225,124 @@ curl http://localhost:3000/countries/US/states/1416/cities
 # Search cities with query parameters
 curl "http://localhost:3000/cities?country_iso2=US&search=los"
 ```
+
+## Deploy to Cloudflare Workers
+
+This API can be deployed to Cloudflare Workers with a D1 database for persistent, globally-distributed storage.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/)
+- [Cloudflare account](https://dash.cloudflare.com/) (free tier works)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) (`npm install -g wrangler`)
+
+### Install Wrangler
+
+```bash
+npm install
+npx wrangler --version
+```
+
+### Authenticate
+
+```bash
+npx wrangler login
+```
+
+This opens a browser window to authorize Wrangler with your Cloudflare account.
+
+### Create D1 Database
+
+```bash
+npx wrangler d1 create geo-location-db
+```
+
+This prints output that includes a `database_id`, for example:
+
+```
+[[d1_databases]]
+binding = "geo-location-db"
+database_name = "geo-location-db"
+database_id = "abc123xyz..."
+```
+
+**Copy the `id` value** — you will need it for `wrangler.toml`.
+
+### Update wrangler.toml
+
+In the project root, open `wrangler.toml` and set the `database_id`:
+
+```toml
+database_id = "your-database-id-here"
+```
+
+Replace `your-database-id-here` with the ID printed in the previous step.
+
+### Import Data
+
+```bash
+npx wrangler d1 execute geo-location-db --remote --file=db/geo.sql
+```
+
+> **Note:** This may take a few minutes for 156,000+ city rows. The `--remote` flag targets the live D1 database.
+
+### Deploy
+
+```bash
+npx wrangler deploy
+```
+
+After a successful deploy, Wrangler prints the Workers URL, for example:
+`https://geo-location-api.<your-subdomain>.workers.dev`
+
+### Test the Deployed API
+
+Replace the URL below with your actual Workers URL.
+
+```bash
+# Health check
+curl https://geo-location-api.<your-subdomain>.workers.dev/health
+
+# List all countries
+curl https://geo-location-api.<your-subdomain>.workers.dev/countries
+
+# Get a specific country
+curl https://geo-location-api.<your-subdomain>.workers.dev/countries/US
+
+# List states in a country
+curl https://geo-location-api.<your-subdomain>.workers.dev/countries/US/states
+
+# Get a specific state (e.g., California)
+curl https://geo-location-api.<your-subdomain>.workers.dev/countries/US/states/1416
+
+# List cities in a state
+curl https://geo-location-api.<your-subdomain>.workers.dev/countries/US/states/1416/cities
+
+# Search cities with query parameters
+curl "https://geo-location-api.<your-subdomain>.workers.dev/cities?country_iso2=US&search=los"
+```
+
+### Local Development
+
+```bash
+npx wrangler dev --local
+```
+
+This runs the Worker locally with a local SQLite file. For remote D1 access during development (useful when testing with live data):
+
+```bash
+npx wrangler dev
+```
+
+> **Note:** With `--local`, changes to the local SQLite file are not synced to the remote D1 database. Always re-import `db/geo.sql` to the remote database after schema changes.
+
+### Differences from Local Node.js Server
+
+| Aspect | Local Node.js | Cloudflare Workers + D1 |
+|--------|---------------|------------------------|
+| Data storage | In-memory (`countries+states+cities.json`) | D1 (SQLite, globally distributed) |
+| Port / URL | `PORT` env var, `localhost:3000` | Workers URL auto-assigned (no `PORT` needed) |
+| Cold starts | None | ~50–100ms on first request after idle |
+| Scaling | Single process | Auto-scales globally at the edge |
+| Persistence | Data resets on restart | Data persists in D1 across deploys |
+```

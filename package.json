@@ -1,0 +1,17 @@
+{
+  "name": "geo-location-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "server:api": "node api/server.js",
+    "test:api": "node api/test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
